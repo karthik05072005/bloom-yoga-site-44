@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Calendar, User, ArrowRight, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import vinyasaClass from "@/assets/vinyasa-class.jpg";
 import instructor1 from "@/assets/instructor-1.jpg";
@@ -18,37 +17,15 @@ const Blog = () => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const { error } = await supabase.from('newsletter_subscribers').insert({
-        email: email,
-      });
-
-      if (error) {
-        if (error.code === '23505') {
-          toast({
-            title: "Already subscribed!",
-            description: "You're already on our newsletter list.",
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: "Successfully subscribed!",
-          description: "Thank you for joining our newsletter.",
-        });
-        setEmail('');
-      }
-    } catch (error) {
-      console.error('Newsletter signup error:', error);
+    // Mock newsletter subscription for demo
+    setTimeout(() => {
       toast({
-        title: "Subscription failed",
-        description: "Please try again later.",
-        variant: "destructive",
+        title: "Successfully subscribed!",
+        description: "Thank you for joining our newsletter.",
       });
-    } finally {
+      setEmail('');
       setLoading(false);
-    }
+    }, 1000);
   };
   const blogPosts = [
     {

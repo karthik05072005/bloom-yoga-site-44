@@ -1,10 +1,16 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { createContext, useContext, useState, ReactNode } from 'react';
+
+// Simple mock user type for demo purposes
+interface MockUser {
+  id: string;
+  email: string;
+  user_metadata?: {
+    full_name?: string;
+  };
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: MockUser | null;
   loading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
@@ -26,58 +32,53 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const [user, setUser] = useState<MockUser | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
+    setLoading(true);
+    
+    // Mock signup - just simulate success
+    setTimeout(() => {
+      const mockUser: MockUser = {
+        id: 'demo-user-' + Date.now(),
+        email,
+        user_metadata: {
           full_name: fullName,
         },
-      },
-    });
-    return { data, error };
+      };
+      setUser(mockUser);
+      setLoading(false);
+    }, 1000);
+
+    return { data: { user: { email } }, error: null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+    setLoading(true);
+    
+    // Mock signin - just simulate success
+    setTimeout(() => {
+      const mockUser: MockUser = {
+        id: 'demo-user-' + Date.now(),
+        email,
+        user_metadata: {
+          full_name: email.split('@')[0],
+        },
+      };
+      setUser(mockUser);
+      setLoading(false);
+    }, 1000);
+
+    return { data: { user: { email } }, error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setUser(null);
   };
 
   const value = {
     user,
-    session,
     loading,
     signUp,
     signIn,

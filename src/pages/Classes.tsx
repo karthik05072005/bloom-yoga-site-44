@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Flame, Heart, Flower2, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/auth/AuthModal";
 import BookingModal from "@/components/booking/BookingModal";
 import vinyasaClass from "@/assets/vinyasa-class.jpg";
@@ -46,37 +45,57 @@ const Classes = () => {
   const [selectedClass, setSelectedClass] = useState<YogaClass | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<ClassSchedule | null>(null);
 
+  // Mock data for demo purposes
+  const mockClasses = [
+    {
+      id: '1',
+      title: 'Vinyasa Flow',
+      description: 'Dynamic sequences linking breath with movement',
+      instructor_name: 'Sarah Johnson',
+      duration: 60,
+      level: 'Intermediate',
+      category: 'vinyasa',
+      price: 25,
+      image_url: vinyasaClass,
+    },
+    {
+      id: '2',
+      title: 'Hatha Yoga',
+      description: 'Gentle poses with focus on alignment and relaxation',
+      instructor_name: 'Michael Chen',
+      duration: 75,
+      level: 'Beginner',
+      category: 'hatha',
+      price: 20,
+      image_url: vinyasaClass,
+    },
+    {
+      id: '3',
+      title: 'Power Yoga',
+      description: 'Strength-building practices for athletic development',
+      instructor_name: 'Emma Davis',
+      duration: 50,
+      level: 'Advanced',
+      category: 'power',
+      price: 30,
+      image_url: vinyasaClass,
+    },
+  ];
+
+  const mockSchedules = [
+    { id: '1', class_id: '1', day_of_week: 'Monday', start_time: '08:00', end_time: '09:00', instructor_name: 'Sarah Johnson', classes: mockClasses[0] },
+    { id: '2', class_id: '1', day_of_week: 'Wednesday', start_time: '18:30', end_time: '19:30', instructor_name: 'Sarah Johnson', classes: mockClasses[0] },
+    { id: '3', class_id: '2', day_of_week: 'Tuesday', start_time: '10:00', end_time: '11:15', instructor_name: 'Michael Chen', classes: mockClasses[1] },
+    { id: '4', class_id: '2', day_of_week: 'Friday', start_time: '16:00', end_time: '17:15', instructor_name: 'Michael Chen', classes: mockClasses[1] },
+    { id: '5', class_id: '3', day_of_week: 'Thursday', start_time: '09:00', end_time: '09:50', instructor_name: 'Emma Davis', classes: mockClasses[2] },
+  ];
+
   useEffect(() => {
-    fetchClassesAndSchedules();
+    // Set mock data instead of fetching from Supabase
+    setClasses(mockClasses);
+    setSchedules(mockSchedules);
+    setLoading(false);
   }, []);
-
-  const fetchClassesAndSchedules = async () => {
-    try {
-      // Fetch classes
-      const { data: classesData, error: classesError } = await supabase
-        .from('classes')
-        .select('*')
-        .order('title');
-
-      if (classesError) throw classesError;
-
-      // Fetch schedules with class data
-      const { data: schedulesData, error: schedulesError } = await supabase
-        .from('class_schedules')
-        .select('*, classes(*)')
-        .eq('is_active', true)
-        .order('day_of_week, start_time');
-
-      if (schedulesError) throw schedulesError;
-
-      setClasses(classesData || []);
-      setSchedules(schedulesData || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleBookClass = (yogaClass: YogaClass, schedule?: ClassSchedule) => {
     if (!user) {

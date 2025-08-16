@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -23,18 +22,8 @@ const Contact = () => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const { error } = await supabase.from('contact_messages').insert({
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone || null,
-        subject: formData.subject,
-        message: formData.message,
-      });
-
-      if (error) throw error;
-
+    // Mock form submission for demo
+    setTimeout(() => {
       toast({
         title: "Message sent successfully!",
         description: "We'll get back to you within 24 hours.",
@@ -49,16 +38,8 @@ const Contact = () => {
         subject: '',
         message: '',
       });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: "Error sending message",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
       setLoading(false);
-    }
+    }, 1000);
   };
 
   const handleInputChange = (field: string, value: string) => {

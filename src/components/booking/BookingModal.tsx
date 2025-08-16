@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Calendar as CalendarIcon, Clock, User, CheckCircle, Loader2 } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, isAfter, startOfDay } from 'date-fns';
@@ -46,31 +45,38 @@ const BookingModal = ({ isOpen, onClose, classData, scheduleData }: BookingModal
   const [availableSchedules, setAvailableSchedules] = useState<ClassSchedule[]>([]);
   const [selectedSchedule, setSelectedSchedule] = useState<ClassSchedule | null>(null);
 
+  // Mock data for demo
   useEffect(() => {
     if (isOpen && classData) {
-      fetchClassSchedules();
+      setLoading(true);
+      // Mock schedule data
+      const mockSchedules = [
+        {
+          id: '1',
+          class_id: classData.id,
+          day_of_week: 'Monday',
+          start_time: '08:00',
+          end_time: '09:00',
+          instructor_name: classData.instructor_name,
+          classes: classData
+        },
+        {
+          id: '2', 
+          class_id: classData.id,
+          day_of_week: 'Wednesday',
+          start_time: '18:30',
+          end_time: '19:30',
+          instructor_name: classData.instructor_name,
+          classes: classData
+        }
+      ];
+      setAvailableSchedules(mockSchedules);
+      if (scheduleData) {
+        setSelectedSchedule(scheduleData);
+      }
+      setLoading(false);
     }
-  }, [isOpen, classData]);
-
-  const fetchClassSchedules = async () => {
-    if (!classData) return;
-
-    const { data, error } = await supabase
-      .from('class_schedules')
-      .select('*, classes(*)')
-      .eq('class_id', classData.id)
-      .eq('is_active', true);
-
-    if (error) {
-      console.error('Error fetching schedules:', error);
-      return;
-    }
-
-    setAvailableSchedules(data || []);
-    if (scheduleData) {
-      setSelectedSchedule(scheduleData);
-    }
-  };
+  }, [isOpen, classData, scheduleData]);
 
   const getNextClassDate = (dayOfWeek: string): Date => {
     const today = startOfDay(new Date());
@@ -98,43 +104,15 @@ const BookingModal = ({ isOpen, onClose, classData, scheduleData }: BookingModal
 
     setLoading(true);
 
-    try {
-      const { error } = await supabase.from('bookings').insert({
-        user_id: user.id,
-        class_id: selectedSchedule.class_id,
-        schedule_id: selectedSchedule.id,
-        booking_date: format(selectedDate, 'yyyy-MM-dd'),
-        status: 'confirmed',
-        payment_status: 'paid', // For demo purposes
-      });
-
-      if (error) {
-        if (error.code === '23505') {
-          toast({
-            title: 'Already Booked',
-            description: 'You have already booked this class for the selected date.',
-            variant: 'destructive',
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: 'Class Booked Successfully!',
-          description: `Your ${classData?.title} class has been booked for ${format(selectedDate, 'EEEE, MMMM d')}.`,
-        });
-        onClose();
-      }
-    } catch (error) {
-      console.error('Booking error:', error);
+    // Mock booking for demo
+    setTimeout(() => {
       toast({
-        title: 'Booking Failed',
-        description: 'There was an error booking your class. Please try again.',
-        variant: 'destructive',
+        title: 'Class Booked Successfully!',
+        description: `Your ${classData?.title} class has been booked for ${format(selectedDate, 'EEEE, MMMM d')}.`,
       });
-    } finally {
+      onClose();
       setLoading(false);
-    }
+    }, 1000);
   };
 
   if (!classData) return null;
