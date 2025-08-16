@@ -68,6 +68,13 @@ export default {
 				md: 'calc(var(--radius) - 4px)',
 				sm: 'calc(var(--radius) - 8px)'
 			},
+			boxShadow: {
+				'soft': '0 4px 20px rgba(226, 62, 105, 0.1)',
+				'medium': '0 8px 30px rgba(226, 62, 105, 0.15)',
+				'strong': '0 15px 40px rgba(226, 62, 105, 0.2)',
+				'hover': '0 8px 20px rgba(0, 0, 0, 0.15)',
+				'card': '0 4px 12px rgba(0, 0, 0, 0.1)',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: {
